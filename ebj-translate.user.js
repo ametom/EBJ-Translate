@@ -4,10 +4,95 @@
 // @description tries to translate ebook japan
 // @include     /.*ebookjapan\.jp/.*/
 // @require     http://code.jquery.com/jquery-1.11.2.min.js
-// @version     0.1.0
+// @version     0.1.1
 // @grant       GM_info
 // @run-at      document-start
 // ==/UserScript==
+
+// ANN API details
+// http://www.animenewsnetwork.com/encyclopedia/reports.xml?id=155&type=manga&search=%E3%83%80%E3%83%B3%E3%82%B8%E3%83%A7%E3%83%B3%E3%81%AB%E5%87%BA%E4%BC%9A%E3%81%84%E3%82%92%E6%B1%82%E3%82%81%E3%82%8B%E3%81%AE%E3%81%AF%E9%96%93%E9%81%95%E3%81%A3%E3%81%A6%E3%81%84%E3%82%8B%E3%81%A0%E3%82%8D%E3%81%86%E3%81%8B
+
+// FUCKING CROSS DOMAIN SHIT
+var ann = {
+    
+// Create the XHR object.
+    createCORSRequest: function(method, url) {
+      var xhr = new XMLHttpRequest();
+      if ("withCredentials" in xhr) {
+        // XHR for Chrome/Firefox/Opera/Safari.
+        xhr.open(method, url, true);
+      } else if (typeof XDomainRequest != "undefined") {
+        // XDomainRequest for IE.
+        xhr = new XDomainRequest();
+        xhr.open(method, url);
+      } else {
+        // CORS not supported.
+        xhr = null;
+      }
+      return xhr;
+    },
+
+// Make the actual CORS request.
+    makeCorsRequest: function(name) {
+      // All HTML5 Rocks properties support CORS.
+      var url = "//www.animenewsnetwork.com/encyclopedia/reports.xml?id=155&type=manga&search="+name;
+
+      var xhr = this.createCORSRequest('GET', url);
+      if (!xhr) {
+        alert('CORS not supported');
+        return;
+      }
+
+      // Response handlers.
+      xhr.onload = function() {
+        var text = xhr.responseText;
+        var title = text.match('<title>(.*)?</title>')[1];
+        alert('Response from CORS request to ' + url + ': ' + title);
+      };
+
+      xhr.onerror = function() {
+        alert('Woops, there was an error making the request.');
+      };
+
+      xhr.send();
+    },
+    
+    "search": function(name, callback){
+        this.makeCorsRequest(name);
+        
+        /*var xhr = new XMLHttpRequest();
+        xhr.onload = function() {
+            var temp = xhr.responseXML.documentElement.nodeName;
+            if(typeof callback !== "undefined"){ 
+                callback(temp);
+            } else {
+                console.log(temp);
+            }
+        }
+        xhr.onerror = function() {
+          dump("Error while getting XML.");
+        }
+        xhr.open("GET", "//www.animenewsnetwork.com/encyclopedia/reports.xml?id=155&type=manga&search="+name);
+        xhr.responseType = "document";
+        xhr.send();*/
+        
+        /*$.ajax({
+            type: "GET",
+            dataType: "xml",
+            url: "//www.animenewsnetwork.com/encyclopedia/reports.xml?id=155&type=manga&search="+name,
+            success: function(xml){
+                $(xml).find("book").each(function(){
+                        $("#output").append($(this).attr("code") + "<br />");
+                    });
+                }
+                console.log(xml);
+            },
+        });*/
+    },
+       
+}
+
+//ann.search("%E3%83");
 
 var dict = [
     //long
@@ -21,6 +106,14 @@ var dict = [
     ["現在お客様の買い物カゴに商品はありません。", "There are currently no items in your Shopping Cart."],
     ["買い物カゴに商品を入れるには、その商品の詳細ページやリストにある","To add an item to your shopping cart, please visit the Details Page of the product"],
     ["「購入」ボタンをクリックしてください。", "Then click the button \"Purchase\""],
+    ["ゴールド会員特典のご案内", "An explanation of Gold Member Benefits."],
+    ["累積50冊以上ご購入いただきましたお客様は、ゴールド会員特典として、eBookJapanオリジナルWebマガジン「KATANA」最新号を無料でダウンロードいただけます。", "Customers who purchase more than 50 books automatically receive the latest issue of eBookJapan's original magazine 「KATANA」 absolutely free."],
+    ["Webマガジン「KATANA」の詳細を見る", "See more details about 「KATANA」"],
+    ["新刊お知らせ管理でご登録いただいた作品／著者の新刊を表示します。", "Notifications of new books for series/authors you've registered would typically display here."],
+    ["まだ作品はありません。", "You have yet to follow any series/authors."],
+    ["作品詳細ページで、作品／著者を新刊お知らせリストに追加できます。", "You can add someone to you notifications by viewing the Details Page of any specific product."],
+    ["あなたが登録した欲しい本のリストです。", "This is the list of books you would like to purchase in the future."],
+    ["あなたが最近閲覧した作品を表示します。", "This displays the books you've viewed recently."],
      
     //regex
     [/(\d+)\/(\d+)～(\d+)発売！\s(\d+)冊/, "$4 books on sale! $1/$2 ~ $1/$3"],
@@ -34,6 +127,7 @@ var dict = [
     [/(.+)の作品/, "Work of $1"],
     [/ようこそ\s(.*)さん/, "Welcome, $1"],
     [/(\d+)～(\d+)件\/(\d+)件\sを表示/, "$1~$2 books / $3 total"],
+    [/（(\d+)～(\d+)巻セット）/, "(Volumes $1~$2)"],
     
     //shorter
     ['カゴへ追加した作品の続刊', "Additional Publications Related To Your Basket"],
@@ -45,10 +139,32 @@ var dict = [
     ['書籍の解説', "Book Description"],
     ['書籍の詳細', "Book Details"],
     ['新刊お知らせ管理画面', "Manage Book Notifications"],
+    ["新刊お知らせ管理", "Manage Notifications"],
     ['新刊お知らせ', "Book Notifications"],
+    ["新刊のお知らせ", "New Book Notifications"],
     ["欲しい本リスト", "Manage Wishlist"],
     ["トップページへ戻る", "Return to Homepage"],
     ["買い物カゴの書籍", "Books in your Shopping Cart"],
+    ["内容を消去", "Delete History"],
+    ["お客様のeBookポイント", "Your eBook Points"],
+    ["利用可能ポイント", "Available Points"],
+    ["獲得ポイント", "Earned Points"],
+    ["お客様情報メニュー", "Visitor Information Menu"],
+    ["ブラウザ本棚", "View Online Bookshelf"],
+    ["TOPへ戻る", "Return to Index"],
+    ["登録解除", "Delete Account"],
+    ["書籍の自動配信設定", "Magazine Delivery Settings"],
+    ["メールマガジン配信設定", "E-Mail Deliever Settings"],
+    ["会員情報の変更", "Change User Information"],
+    ["会員情報の確認", "User Card Reference"],
+    ["書籍の管理", "Book Management"],
+    ["ポイント詳細", "Points Details"],
+    ["購入履歴", "Purchase History"],
+    
+    
+    ["マイページトップ", "My Page"],
+    
+    ["表示／非表示", "Show / Hide"],
     
     ['オススメ特集', "Special Promotions"],
     ['ここもチェック！', "Check this out too!"],
@@ -111,14 +227,20 @@ var dict = [
     ['ジャンルで絞込む', "Filter Genre"],
     ['価格で絞込む', "Filter Price"],
     
+    ["eBookポイントについて", "About eBook Points"],
+    ["会員種別：", "Membership Type: "],
+    ["通常会員", "Normal Member"],
+    
     ['表示形式', "Display Format"],
     ['表示件数', "Amount to Display"],
     ['表示順', "Display Order"],
     
-    ['eBookJapan発売日', "eBookJapan List Date"],
+    ['eBookJapan発売日', "Online Listing Date"],
     ['セット一覧', "Bulk Set Listing"],
     ['書籍一覧', "Volume Listing"],
     ['全巻セット', "Whole Volume Set"],
+    ['特別セット', "Special Set"],
+    ['（全巻）', "(All Volumes)"],
     
     ["新刊", "New Books"],
     
@@ -166,6 +288,7 @@ var dict = [
     ["登録日", "Registration Date"],
     ["書籍名", "Book Name"],
     ["著者名", "Author Name"],
+    ["紙と同時", "Simul-Release"],
     
     //single words
     ['書籍', "Series"],
@@ -203,9 +326,12 @@ var dict = [
     ["削除", "Delete"],
     ["昇順", "Ascending"],
     ["降順", "Descending"],
+    ["後で", "Postpone"],
+    ["割引", "Sale"],
     
     ["冊", " books"],
     ["円", "¥"],
+    [/(.+)さん/, "$1-san"],
 ];
 
 var shitToRegex = [
@@ -256,6 +382,22 @@ function init(){
     }
 }
 
+function addLinksToTitles(){
+    // ダンジョンに出会いを求めるのは間違っているだろうか
+    // site:en.wikipedia.org ダンジョンに出会いを求めるのは間違っているだろうか
+    // //www.google.com/search?btnI=I'm Feeling Lucky&q=site%3Aen.wikipedia.org+ダンジョンに出会いを求めるのは間違っているだろうか
+    var mynode = $("#navigationBar h1 span");
+    console.log(mynode);
+    
+    var mylink = $(document.createElement("a"));
+    //mylink.attr("href", "//www.google.com/search?btnI=I'm Feeling Lucky&q=site%3Aen.wikipedia.org+\""+mynode.text()+"\"");
+    mylink.attr("href", "//www.google.com/search?btnI=I'm Feeling Lucky&q=site%3Awikipedia.org+\""+mynode.text()+"\"");
+    mylink.text("Wiki");
+    mylink.css("font-size", "0.5em");
+    mylink.addClass("btn more");
+    mynode.parent().append(mylink);
+}
+
 function observeShit(){
     // select the target node
     //var target = document.querySelector('#some-id');
@@ -286,12 +428,16 @@ function observeShit(){
 
 try {
     observeShit();
+
+    var alreadyDidShit = false;
     
-    /*document.onreadystatechange = function () {
-        if (document.readyState == "interactive") {
-          init();
+    document.onreadystatechange = function () {
+        if (document.readyState == "interactive" || document.readyState == "complete" && !alreadyDidShit) {
+          alreadyDidShit = true;
+          //init();
+          addLinksToTitles();
         }
-    }*/
+    }
 
 } catch (e){
     console.error(e);
