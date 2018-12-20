@@ -3,8 +3,8 @@
 // @namespace   haishin.ebookjapan.jp
 // @description tries to translate ebook japan
 // @include     /.*ebookjapan\.jp/.*/
-// @require     http://code.jquery.com/jquery-1.11.2.min.js
-// @version     0.1.1
+// @require     https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js
+// @version     0.1.2
 // @grant       GM_info
 // @run-at      document-start
 // ==/UserScript==
@@ -14,7 +14,7 @@
 
 // FUCKING CROSS DOMAIN SHIT
 var ann = {
-    
+
 // Create the XHR object.
     createCORSRequest: function(method, url) {
       var xhr = new XMLHttpRequest();
@@ -56,40 +56,10 @@ var ann = {
 
       xhr.send();
     },
-    
+
     "search": function(name, callback){
         this.makeCorsRequest(name);
-        
-        /*var xhr = new XMLHttpRequest();
-        xhr.onload = function() {
-            var temp = xhr.responseXML.documentElement.nodeName;
-            if(typeof callback !== "undefined"){ 
-                callback(temp);
-            } else {
-                console.log(temp);
-            }
-        }
-        xhr.onerror = function() {
-          dump("Error while getting XML.");
-        }
-        xhr.open("GET", "//www.animenewsnetwork.com/encyclopedia/reports.xml?id=155&type=manga&search="+name);
-        xhr.responseType = "document";
-        xhr.send();*/
-        
-        /*$.ajax({
-            type: "GET",
-            dataType: "xml",
-            url: "//www.animenewsnetwork.com/encyclopedia/reports.xml?id=155&type=manga&search="+name,
-            success: function(xml){
-                $(xml).find("book").each(function(){
-                        $("#output").append($(this).attr("code") + "<br />");
-                    });
-                }
-                console.log(xml);
-            },
-        });*/
     },
-       
 }
 
 //ann.search("%E3%83");
@@ -114,7 +84,7 @@ var dict = [
     ["作品詳細ページで、作品／著者を新刊お知らせリストに追加できます。", "You can add someone to you notifications by viewing the Details Page of any specific product."],
     ["あなたが登録した欲しい本のリストです。", "This is the list of books you would like to purchase in the future."],
     ["あなたが最近閲覧した作品を表示します。", "This displays the books you've viewed recently."],
-     
+
     //regex
     [/(\d+)\/(\d+)～(\d+)発売！\s(\d+)冊/, "$4 books on sale! $1/$2 ~ $1/$3"],
     [/電子書籍ならeBookJapan！([\d,]+)冊\s配信中！毎日更新！/, "$1 books and counting! Updated daily!"],
@@ -128,7 +98,7 @@ var dict = [
     [/ようこそ\s(.*)さん/, "Welcome, $1"],
     [/(\d+)～(\d+)件\/(\d+)件\sを表示/, "$1~$2 books / $3 total"],
     [/（(\d+)～(\d+)巻セット）/, "(Volumes $1~$2)"],
-    
+
     //shorter
     ['カゴへ追加した作品の続刊', "Additional Publications Related To Your Basket"],
     ["最近チェックした作品", "Recently Viewed Publications"],
@@ -160,12 +130,11 @@ var dict = [
     ["書籍の管理", "Book Management"],
     ["ポイント詳細", "Points Details"],
     ["購入履歴", "Purchase History"],
-    
-    
+
     ["マイページトップ", "My Page"],
-    
+
     ["表示／非表示", "Show / Hide"],
-    
+
     ['オススメ特集', "Special Promotions"],
     ['ここもチェック！', "Check this out too!"],
     ['コンテンツについて', "Additional Information"],
@@ -173,28 +142,28 @@ var dict = [
     ['人気の著者', "Popular Authors"],
 
     ['シリーズ作品', "Series Anthology"],
-    
+
     ['一覧を見る', "View Listing"],
     ['続きを読む', "Read More"],
     ['参考になった', "I found this helpful"],
     ['無料の本コーナー', "Free Books Corner"],
-    
+
     ['書籍名昇順', "Title (Ascending)"],
     ['書籍名降順', "Title (Descending)"],
     ['著者名昇順', "Author (Ascending)"],
     ['著者名降順', "Author (Descending)"],
     ['購入日昇順', "Purchase Date (Ascending)"],
     ['購入日降順', "Purchase Date (Descending)"],
-    
+
     ['ランキング', " Rankings"],
-    
+
     ['無料の本', "Free Books"],
     ['全ページ立読', "All Pages Free"],
-    
+
     ['検索結果', "Search Results"],
     ['全てを見る', "View Everything"],
     ['レビューを書く', "Write a review"],
-    
+
     ['ログイン／会員登録', "Login / Join"],
     ['立読ページ数', "Preview Pages"],
 
@@ -205,16 +174,16 @@ var dict = [
 
     ['電子書籍のタイプ', "E-Book Type"],
     ['画像型', "Image Type"],
-    
+
     ["ブラウザで読む", "Read Online"],
     ["アプリで読む", "Read in App"],
     ["アプリをダウンロード", "Download App"],
-    
+
     ["まで割引！", " Discount Ends!"],
-    
+
     ['詳細はこちら', "More Details"],
     ['ブラウザ楽読み', "Online Reader"],
-    
+
     ['絞込み条件', "Refine Search"],
     ['キーワード検索', "Keyword Search"],
     ['作品解説を含まない', "No Commentary"],
@@ -226,29 +195,30 @@ var dict = [
     ['著者で絞込む', "Filter Author"],
     ['ジャンルで絞込む', "Filter Genre"],
     ['価格で絞込む', "Filter Price"],
-    
+
     ["eBookポイントについて", "About eBook Points"],
     ["会員種別：", "Membership Type: "],
     ["通常会員", "Normal Member"],
-    
+
     ['表示形式', "Display Format"],
     ['表示件数', "Amount to Display"],
     ['表示順', "Display Order"],
-    
+
     ['eBookJapan発売日', "Online Listing Date"],
     ['セット一覧', "Bulk Set Listing"],
+    ["シリーズ書籍一覧", "Series volume listing"],
     ['書籍一覧', "Volume Listing"],
     ['全巻セット', "Whole Volume Set"],
     ['特別セット', "Special Set"],
     ['（全巻）', "(All Volumes)"],
-    
+
     ["新刊", "New Books"],
-    
+
     ["マイページTOP", "My Page"],
     ["ご利用案内", "Usage Guide"],
     ["お問い合わせ", "Contact Us"],
     ['ログアウト', "Logout"],
-    
+
     ['男性マンガ誌', "Men's Magazines"],
     ['女性マンガ誌', "Women's Magazines"],
     ['男性マンガ', "Men's Manga"],
@@ -272,9 +242,9 @@ var dict = [
     ['アダルトコミック', "Adult Comics"],
     ['アダルト', "Adult"],
     ['官能小説', "Pornographic Novel"],
-    
+
     ['税別', "excl. tax"],
-    
+
     ['書籍名', "Book Title"],
     ['著者名', "Author"],
     ["eBookJapanについて", "About eBookJapan"],
@@ -289,27 +259,37 @@ var dict = [
     ["書籍名", "Book Name"],
     ["著者名", "Author Name"],
     ["紙と同時", "Simul-Release"],
-    
+
+	["レビューはありません", "There are no reviews"],
+	["みんなのレビュー", "All reviews"],
+	["ポイント獲得", " points earned"],
+	['カゴに追加', "Add to basket"],
+	["試し読み", "Read trial"],
+	["欲しい本に追加", "Add to wishlist"],
+	["続きを見る", "See more"],
+	["予約で買うとポイント5倍", "Preorder for 5x points"],
+	["書籍名、著者名等を入力して下さい", "Search for book title or author name"],
+
     //single words
     ['書籍', "Series"],
     ['著者', "Author"],
     ['著', "Author"],
     ['価格', "Price"],
-    ['ポイント', "Points"],
     ['レビュー', "Review"],
-    ['一覧', "List"],    
+    ['一覧', "List"],
     ['メニュー', "Menu"],
     ['整理', "Rearrange"],
     ['ストア', "Store"],
     ['書籍名', "Title"],
     ['著者名', "Author"],
+    ["ジャンル", "Genre"],
+    ['ポイント', "Points"],
     ['購入日', "Date"],
     ['初めての方へ', "Guide"],
     ['買い物カゴ', "Cart"],
     ['本棚', "Bookshelf"],
     ['マイページ', "Profile"],
     ['立読', "Preview"],
-    ['カゴに追加', "Purchase"],
     ['購入', "Buy"],
     ['欲しい本', "Wishlist"],
     ['ページ数', "Pages"],
@@ -328,7 +308,12 @@ var dict = [
     ["降順", "Descending"],
     ["後で", "Postpone"],
     ["割引", "Sale"],
-    
+    ["検索", "Search"],
+    ["たたむ", "Close"],
+    ["ツイート", "Tweet"],
+    ["いいね！", "Like"],
+    ["シェア", "Share"],
+
     ["冊", " books"],
     ["円", "¥"],
     [/(.+)さん/, "$1-san"],
@@ -388,7 +373,7 @@ function addLinksToTitles(){
     // //www.google.com/search?btnI=I'm Feeling Lucky&q=site%3Aen.wikipedia.org+ダンジョンに出会いを求めるのは間違っているだろうか
     var mynode = $("#navigationBar h1 span");
     console.log(mynode);
-    
+
     var mylink = $(document.createElement("a"));
     //mylink.attr("href", "//www.google.com/search?btnI=I'm Feeling Lucky&q=site%3Aen.wikipedia.org+\""+mynode.text()+"\"");
     mylink.attr("href", "//www.google.com/search?btnI=I'm Feeling Lucky&q=site%3Awikipedia.org+\""+mynode.text()+"\"");
@@ -403,22 +388,21 @@ function observeShit(){
     //var target = document.querySelector('#some-id');
     var target = document;
 
-    
     if(typeof target !== 'undefined' && target != null){
         // create an observer instance
         var observer = new MutationObserver(function(mutations) {
           mutations.forEach(function(mutation) {
             //console.log(mutation.addedNodes);
             replaceTextValues(mutation.addedNodes);
-          });    
+          });
         });
-         
+
         // configuration of the observer:
         var config = { childList: true, subtree: true };
-         
+
         // pass in the target node, as well as the observer options
         observer.observe(target, config);
-         
+
         // later, you can stop observing
         //observer.disconnect();
     } else {
@@ -430,7 +414,7 @@ try {
     observeShit();
 
     var alreadyDidShit = false;
-    
+
     document.onreadystatechange = function () {
         if (document.readyState == "interactive" || document.readyState == "complete" && !alreadyDidShit) {
           alreadyDidShit = true;
